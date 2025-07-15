@@ -13,8 +13,12 @@ app.use(express.static('public'));
 
 // 업로드 폴더 생성 (Vercel에서는 /tmp 디렉토리 사용)
 const uploadDir = process.env.NODE_ENV === 'production' ? '/tmp/uploads' : path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (error) {
+    console.error('업로드 폴더 생성 오류:', error);
 }
 
 // Multer 설정
