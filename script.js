@@ -1,0 +1,418 @@
+// 전역 변수
+let projects = [];
+let skills = [];
+let editingProjectIndex = -1;
+
+// 초기 데이터
+const initialProjects = [
+    {
+        id: 1,
+        name: "포트폴리오 웹사이트",
+        period: "2024.01 - 2024.02",
+        type: "web",
+        thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
+        description: "React와 Tailwind CSS를 사용한 반응형 포트폴리오 웹사이트입니다. 다크모드 지원과 모바일 최적화가 포함되어 있습니다."
+    },
+    {
+        id: 2,
+        name: "AI 챗봇 애플리케이션",
+        period: "2023.11 - 2023.12",
+        type: "ai",
+        thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
+        description: "OpenAI API를 활용한 지능형 챗봇 애플리케이션입니다. 자연어 처리와 대화형 인터페이스를 구현했습니다."
+    },
+    {
+        id: 3,
+        name: "모바일 할일 관리 앱",
+        period: "2023.08 - 2023.10",
+        type: "mobile",
+        thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop",
+        description: "React Native로 개발한 크로스 플랫폼 할일 관리 애플리케이션입니다. 로컬 스토리지와 푸시 알림 기능을 포함합니다."
+    }
+];
+
+const initialSkills = [
+    { name: "JavaScript", color: "blue" },
+    { name: "React", color: "blue" },
+    { name: "Node.js", color: "green" },
+    { name: "Python", color: "green" },
+    { name: "TypeScript", color: "blue" },
+    { name: "MongoDB", color: "green" },
+    { name: "AWS", color: "yellow" },
+    { name: "Docker", color: "blue" },
+    { name: "Git", color: "purple" },
+    { name: "Figma", color: "pink" }
+];
+
+// DOM 요소들
+const elements = {
+    // 프로필 관련
+    profileName: document.getElementById('profileName'),
+    profileSchool: document.getElementById('profileSchool'),
+    profileMajor: document.getElementById('profileMajor'),
+    profileAge: document.getElementById('profileAge'),
+    profilePhone: document.getElementById('profilePhone'),
+    profileEmail: document.getElementById('profileEmail'),
+    profileGithub: document.getElementById('profileGithub'),
+    profileInitials: document.getElementById('profileInitials'),
+    
+    // 프로젝트 관련
+    projectsGrid: document.getElementById('projectsGrid'),
+    projectSort: document.getElementById('projectSort'),
+    projectFilter: document.getElementById('projectFilter'),
+    
+    // 스킬 관련
+    skillsGrid: document.getElementById('skillsGrid'),
+    
+    // 모달 관련
+    profileModal: document.getElementById('profileModal'),
+    projectModal: document.getElementById('projectModal'),
+    skillModal: document.getElementById('skillModal'),
+    
+    // 버튼들
+    darkModeToggle: document.getElementById('darkModeToggle'),
+    editProfileBtn: document.getElementById('editProfileBtn'),
+    addProjectBtn: document.getElementById('addProjectBtn'),
+    addSkillBtn: document.getElementById('addSkillBtn'),
+    
+    // 폼 관련
+    profileForm: document.getElementById('profileForm'),
+    projectForm: document.getElementById('projectForm'),
+    skillForm: document.getElementById('skillForm')
+};
+
+// 초기화 함수
+function init() {
+    loadData();
+    setupEventListeners();
+    renderProjects();
+    renderSkills();
+    setupDarkMode();
+}
+
+// 데이터 로드
+function loadData() {
+    const savedProjects = localStorage.getItem('portfolio_projects');
+    const savedSkills = localStorage.getItem('portfolio_skills');
+    const savedProfile = localStorage.getItem('portfolio_profile');
+    
+    projects = savedProjects ? JSON.parse(savedProjects) : initialProjects;
+    skills = savedSkills ? JSON.parse(savedSkills) : initialSkills;
+    
+    if (savedProfile) {
+        const profile = JSON.parse(savedProfile);
+        updateProfileDisplay(profile);
+    }
+}
+
+// 데이터 저장
+function saveData() {
+    localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+    localStorage.setItem('portfolio_skills', JSON.stringify(skills));
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 다크모드 토글
+    elements.darkModeToggle.addEventListener('click', toggleDarkMode);
+    
+    // 프로필 편집
+    elements.editProfileBtn.addEventListener('click', openProfileModal);
+    elements.profileForm.addEventListener('submit', handleProfileSubmit);
+    document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+    
+    // 프로젝트 관련
+    elements.addProjectBtn.addEventListener('click', openProjectModal);
+    elements.projectForm.addEventListener('submit', handleProjectSubmit);
+    document.getElementById('closeProjectModal').addEventListener('click', closeProjectModal);
+    elements.projectSort.addEventListener('change', renderProjects);
+    elements.projectFilter.addEventListener('change', renderProjects);
+    
+    // 스킬 관련
+    elements.addSkillBtn.addEventListener('click', openSkillModal);
+    elements.skillForm.addEventListener('submit', handleSkillSubmit);
+    document.getElementById('closeSkillModal').addEventListener('click', closeSkillModal);
+    
+    // 모달 외부 클릭으로 닫기
+    [elements.profileModal, elements.projectModal, elements.skillModal].forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+}
+
+// 다크모드 설정
+function setupDarkMode() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+    }
+}
+
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('darkMode', isDark);
+}
+
+// 프로필 관련 함수들
+function openProfileModal() {
+    const profile = {
+        name: elements.profileName.textContent,
+        school: elements.profileSchool.textContent,
+        major: elements.profileMajor.textContent,
+        age: elements.profileAge.textContent.replace('세', ''),
+        phone: elements.profilePhone.textContent,
+        email: elements.profileEmail.textContent,
+        github: elements.profileGithub.href
+    };
+    
+    document.getElementById('editName').value = profile.name;
+    document.getElementById('editSchool').value = profile.school;
+    document.getElementById('editMajor').value = profile.major;
+    document.getElementById('editAge').value = profile.age;
+    document.getElementById('editPhone').value = profile.phone;
+    document.getElementById('editEmail').value = profile.email;
+    document.getElementById('editGithub').value = profile.github;
+    
+    elements.profileModal.classList.remove('hidden');
+}
+
+function closeProfileModal() {
+    elements.profileModal.classList.add('hidden');
+}
+
+function handleProfileSubmit(e) {
+    e.preventDefault();
+    
+    const profile = {
+        name: document.getElementById('editName').value,
+        school: document.getElementById('editSchool').value,
+        major: document.getElementById('editMajor').value,
+        age: document.getElementById('editAge').value,
+        phone: document.getElementById('editPhone').value,
+        email: document.getElementById('editEmail').value,
+        github: document.getElementById('editGithub').value
+    };
+    
+    updateProfileDisplay(profile);
+    localStorage.setItem('portfolio_profile', JSON.stringify(profile));
+    closeProfileModal();
+}
+
+function updateProfileDisplay(profile) {
+    elements.profileName.textContent = profile.name;
+    elements.profileSchool.textContent = profile.school;
+    elements.profileMajor.textContent = profile.major;
+    elements.profileAge.textContent = `${profile.age}세`;
+    elements.profilePhone.textContent = profile.phone;
+    elements.profileEmail.textContent = profile.email;
+    elements.profileGithub.href = profile.github;
+    elements.profileGithub.textContent = 'GitHub';
+    
+    // 이니셜 업데이트
+    const initials = profile.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+    elements.profileInitials.textContent = initials;
+}
+
+// 프로젝트 관련 함수들
+function openProjectModal(projectIndex = -1) {
+    editingProjectIndex = projectIndex;
+    const modalTitle = document.getElementById('projectModalTitle');
+    
+    if (projectIndex >= 0) {
+        const project = projects[projectIndex];
+        modalTitle.textContent = '프로젝트 편집';
+        
+        document.getElementById('editProjectName').value = project.name;
+        document.getElementById('editProjectPeriod').value = project.period;
+        document.getElementById('editProjectType').value = project.type;
+        document.getElementById('editProjectThumbnail').value = project.thumbnail;
+        document.getElementById('editProjectDescription').value = project.description;
+    } else {
+        modalTitle.textContent = '프로젝트 추가';
+        
+        document.getElementById('editProjectName').value = '';
+        document.getElementById('editProjectPeriod').value = '';
+        document.getElementById('editProjectType').value = 'web';
+        document.getElementById('editProjectThumbnail').value = '';
+        document.getElementById('editProjectDescription').value = '';
+    }
+    
+    elements.projectModal.classList.remove('hidden');
+}
+
+function closeProjectModal() {
+    elements.projectModal.classList.add('hidden');
+    editingProjectIndex = -1;
+}
+
+function handleProjectSubmit(e) {
+    e.preventDefault();
+    
+    const projectData = {
+        name: document.getElementById('editProjectName').value,
+        period: document.getElementById('editProjectPeriod').value,
+        type: document.getElementById('editProjectType').value,
+        thumbnail: document.getElementById('editProjectThumbnail').value,
+        description: document.getElementById('editProjectDescription').value
+    };
+    
+    if (editingProjectIndex >= 0) {
+        // 편집 모드
+        projects[editingProjectIndex] = {
+            ...projects[editingProjectIndex],
+            ...projectData
+        };
+    } else {
+        // 추가 모드
+        const newProject = {
+            id: Date.now(),
+            ...projectData
+        };
+        projects.unshift(newProject);
+    }
+    
+    saveData();
+    renderProjects();
+    closeProjectModal();
+}
+
+function deleteProject(projectId) {
+    if (confirm('정말로 이 프로젝트를 삭제하시겠습니까?')) {
+        projects = projects.filter(p => p.id !== projectId);
+        saveData();
+        renderProjects();
+    }
+}
+
+function renderProjects() {
+    const sortType = elements.projectSort.value;
+    const filterType = elements.projectFilter.value;
+    
+    let filteredProjects = projects;
+    
+    // 필터링
+    if (filterType !== 'all') {
+        filteredProjects = projects.filter(p => p.type === filterType);
+    }
+    
+    // 정렬
+    switch (sortType) {
+        case 'recent':
+            filteredProjects.sort((a, b) => new Date(b.period.split(' - ')[0]) - new Date(a.period.split(' - ')[0]));
+            break;
+        case 'oldest':
+            filteredProjects.sort((a, b) => new Date(a.period.split(' - ')[0]) - new Date(b.period.split(' - ')[0]));
+            break;
+        case 'name':
+            filteredProjects.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+    }
+    
+    elements.projectsGrid.innerHTML = filteredProjects.map((project, index) => `
+        <div class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div class="relative h-48 bg-gray-200 dark:bg-gray-700">
+                ${project.thumbnail ? 
+                    `<img src="${project.thumbnail}" alt="${project.name}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500\\'><svg class=\\'w-16 h-16\\' fill=\\'none\\' stroke=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\\'></path></svg></div>'">` :
+                    `<div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>`
+                }
+                <div class="absolute top-2 right-2 flex gap-1">
+                    <button onclick="openProjectModal(${filteredProjects.findIndex(p => p.id === project.id)})" class="p-1 bg-white dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="deleteProject(${project.id})" class="p-1 bg-white dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">${project.name}</h3>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeBadgeClass(project.type)}">${getTypeLabel(project.type)}</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">${project.period}</p>
+                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">${project.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getTypeBadgeClass(type) {
+    const classes = {
+        web: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+        mobile: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        ai: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+        other: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+    };
+    return classes[type] || classes.other;
+}
+
+function getTypeLabel(type) {
+    const labels = {
+        web: '웹 개발',
+        mobile: '모바일 앱',
+        ai: 'AI/ML',
+        other: '기타'
+    };
+    return labels[type] || '기타';
+}
+
+// 스킬 관련 함수들
+function openSkillModal() {
+    document.getElementById('editSkillName').value = '';
+    document.getElementById('editSkillColor').value = 'blue';
+    elements.skillModal.classList.remove('hidden');
+}
+
+function closeSkillModal() {
+    elements.skillModal.classList.add('hidden');
+}
+
+function handleSkillSubmit(e) {
+    e.preventDefault();
+    
+    const skillName = document.getElementById('editSkillName').value.trim();
+    const skillColor = document.getElementById('editSkillColor').value;
+    
+    if (skillName) {
+        const newSkill = { name: skillName, color: skillColor };
+        skills.push(newSkill);
+        saveData();
+        renderSkills();
+        closeSkillModal();
+    }
+}
+
+function deleteSkill(skillIndex) {
+    if (confirm('정말로 이 스킬을 삭제하시겠습니까?')) {
+        skills.splice(skillIndex, 1);
+        saveData();
+        renderSkills();
+    }
+}
+
+function renderSkills() {
+    elements.skillsGrid.innerHTML = skills.map((skill, index) => `
+        <div class="skill-tag skill-${skill.color} px-3 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+            <span>${skill.name}</span>
+            <button onclick="deleteSkill(${index})" class="text-current hover:opacity-70 transition-opacity">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    `).join('');
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init); 
