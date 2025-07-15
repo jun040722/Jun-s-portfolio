@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프로젝트 상세 - 포트폴리오</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-video-preview/dist/filepond-plugin-video-preview.js"></script>
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-video-preview/dist/filepond-plugin-video-preview.css" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -109,6 +115,20 @@
                     </div>
                 </div>
 
+                <!-- 미디어 갤러리 섹션 -->
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">시연 영상 및 사진</h3>
+                    <div id="projectMediaGallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- 미디어 파일들이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                    <div id="noMediaMessage" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p>업로드된 시연 영상이나 사진이 없습니다.</p>
+                    </div>
+                </div>
+
                 <!-- 링크 섹션 -->
                 <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">프로젝트 링크</h3>
@@ -162,6 +182,24 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">프로젝트 링크</label>
                         <input type="url" id="editProjectLink" placeholder="https://github.com/username/project" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">시연 영상/사진 업로드</label>
+                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                            <input type="file" id="projectMediaDetail" multiple accept="image/*,video/*" class="hidden">
+                            <div id="mediaUploadAreaDetail" class="text-center cursor-pointer">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                    클릭하여 파일 선택 또는 드래그 앤 드롭
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500">
+                                    이미지 (JPG, PNG, GIF) 또는 비디오 (MP4, WebM) 파일
+                                </p>
+                            </div>
+                            <div id="mediaPreviewDetail" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2"></div>
+                        </div>
                     </div>
                     <div class="flex gap-3 pt-4">
                         <button type="submit" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">저장</button>

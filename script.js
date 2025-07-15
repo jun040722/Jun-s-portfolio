@@ -2,6 +2,7 @@
 let projects = [];
 let skills = [];
 let editingProjectIndex = -1;
+let currentProjectMedia = [];
 
 // 초기 데이터
 const initialProjects = [
@@ -21,7 +22,8 @@ const initialProjects = [
             "스킬 태그 관리",
             "프로젝트 정렬 및 필터링"
         ],
-        link: "https://github.com/jun040722/Jun-s-portfolio"
+        link: "https://github.com/jun040722/Jun-s-portfolio",
+        media: []
     },
     {
         id: 2,
@@ -38,7 +40,8 @@ const initialProjects = [
             "다국어 지원",
             "사용자 인증 및 권한 관리"
         ],
-        link: "https://github.com/example/ai-chatbot"
+        link: "https://github.com/example/ai-chatbot",
+        media: []
     },
     {
         id: 3,
@@ -56,7 +59,8 @@ const initialProjects = [
             "오프라인 동기화",
             "다크모드 지원"
         ],
-        link: "https://github.com/example/todo-app"
+        link: "https://github.com/example/todo-app",
+        media: []
     }
 ];
 
@@ -111,8 +115,8 @@ const elements = {
 };
 
 // 초기화 함수
-function init() {
-    loadData();
+async function init() {
+    await loadData();
     setupEventListeners();
     renderProjects();
     renderSkills();
@@ -120,24 +124,92 @@ function init() {
 }
 
 // 데이터 로드
-function loadData() {
-    const savedProjects = localStorage.getItem('portfolio_projects');
-    const savedSkills = localStorage.getItem('portfolio_skills');
-    const savedProfile = localStorage.getItem('portfolio_profile');
-    
-    projects = savedProjects ? JSON.parse(savedProjects) : initialProjects;
-    skills = savedSkills ? JSON.parse(savedSkills) : initialSkills;
-    
-    if (savedProfile) {
-        const profile = JSON.parse(savedProfile);
-        updateProfileDisplay(profile);
+async function loadData() {
+    try {
+        // 백엔드에서 데이터 로드
+        const [projectsResponse, skillsResponse, profileResponse] = await Promise.allSettled([
+            fetch('/api/projects'),
+            fetch('/api/skills'),
+            fetch('/api/profile')
+        ]);
+        
+        if (projectsResponse.status === 'fulfilled' && projectsResponse.value.ok) {
+            const projectsData = await projectsResponse.value.json();
+            projects = projectsData.length > 0 ? projectsData : initialProjects;
+        } else {
+            // 백엔드 실패 시 로컬 스토리지 사용
+            const savedProjects = localStorage.getItem('portfolio_projects');
+            projects = savedProjects ? JSON.parse(savedProjects) : initialProjects;
+        }
+        
+        if (skillsResponse.status === 'fulfilled' && skillsResponse.value.ok) {
+            const skillsData = await skillsResponse.value.json();
+            skills = skillsData.length > 0 ? skillsData : initialSkills;
+        } else {
+            // 백엔드 실패 시 로컬 스토리지 사용
+            const savedSkills = localStorage.getItem('portfolio_skills');
+            skills = savedSkills ? JSON.parse(savedSkills) : initialSkills;
+        }
+        
+        if (profileResponse.status === 'fulfilled' && profileResponse.value.ok) {
+            const profileData = await profileResponse.value.json();
+            if (Object.keys(profileData).length > 0) {
+                updateProfileDisplay(profileData);
+            }
+        } else {
+            // 백엔드 실패 시 로컬 스토리지 사용
+            const savedProfile = localStorage.getItem('portfolio_profile');
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                updateProfileDisplay(profile);
+            }
+        }
+    } catch (error) {
+        console.error('데이터 로드 오류:', error);
+        // 모든 백엔드 요청 실패 시 로컬 스토리지 사용
+        const savedProjects = localStorage.getItem('portfolio_projects');
+        const savedSkills = localStorage.getItem('portfolio_skills');
+        const savedProfile = localStorage.getItem('portfolio_profile');
+        
+        projects = savedProjects ? JSON.parse(savedProjects) : initialProjects;
+        skills = savedSkills ? JSON.parse(savedSkills) : initialSkills;
+        
+        if (savedProfile) {
+            const profile = JSON.parse(savedProfile);
+            updateProfileDisplay(profile);
+        }
     }
 }
 
 // 데이터 저장
-function saveData() {
-    localStorage.setItem('portfolio_projects', JSON.stringify(projects));
-    localStorage.setItem('portfolio_skills', JSON.stringify(skills));
+async function saveData() {
+    try {
+        // 백엔드에 저장
+        await fetch('/api/projects', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(projects)
+        });
+        
+        await fetch('/api/skills', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(skills)
+        });
+        
+        // 로컬 스토리지에도 백업
+        localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+        localStorage.setItem('portfolio_skills', JSON.stringify(skills));
+    } catch (error) {
+        console.error('데이터 저장 오류:', error);
+        // 백엔드 실패 시 로컬 스토리지만 사용
+        localStorage.setItem('portfolio_projects', JSON.stringify(projects));
+        localStorage.setItem('portfolio_skills', JSON.stringify(skills));
+    }
 }
 
 // 이벤트 리스너 설정
@@ -161,6 +233,9 @@ function setupEventListeners() {
     elements.addSkillBtn.addEventListener('click', openSkillModal);
     elements.skillForm.addEventListener('submit', handleSkillSubmit);
     document.getElementById('closeSkillModal').addEventListener('click', closeSkillModal);
+    
+    // 파일 업로드 관련
+    setupFileUpload();
     
     // 모달 외부 클릭으로 닫기
     [elements.profileModal, elements.projectModal, elements.skillModal].forEach(modal => {
@@ -212,7 +287,7 @@ function closeProfileModal() {
     elements.profileModal.classList.add('hidden');
 }
 
-function handleProfileSubmit(e) {
+async function handleProfileSubmit(e) {
     e.preventDefault();
     
     const profile = {
@@ -225,8 +300,25 @@ function handleProfileSubmit(e) {
         github: document.getElementById('editGithub').value
     };
     
+    try {
+        // 백엔드에 저장
+        await fetch('/api/profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profile)
+        });
+        
+        // 로컬 스토리지에도 백업
+        localStorage.setItem('portfolio_profile', JSON.stringify(profile));
+    } catch (error) {
+        console.error('프로필 저장 오류:', error);
+        // 백엔드 실패 시 로컬 스토리지만 사용
+        localStorage.setItem('portfolio_profile', JSON.stringify(profile));
+    }
+    
     updateProfileDisplay(profile);
-    localStorage.setItem('portfolio_profile', JSON.stringify(profile));
     closeProfileModal();
 }
 
@@ -250,6 +342,9 @@ function openProjectModal(projectIndex = -1) {
     editingProjectIndex = projectIndex;
     const modalTitle = document.getElementById('projectModalTitle');
     
+    // 미디어 데이터 초기화
+    currentProjectMedia = [];
+    
     if (projectIndex >= 0) {
         const project = projects[projectIndex];
         modalTitle.textContent = '프로젝트 편집';
@@ -262,6 +357,12 @@ function openProjectModal(projectIndex = -1) {
         document.getElementById('editProjectTechStack').value = (project.techStack || []).join(', ');
         document.getElementById('editProjectFeatures').value = (project.features || []).join('\n');
         document.getElementById('editProjectLink').value = project.link || '';
+        
+        // 기존 미디어 데이터 로드
+        if (project.media) {
+            currentProjectMedia = [...project.media];
+            renderMediaPreview();
+        }
     } else {
         modalTitle.textContent = '프로젝트 추가';
         
@@ -273,6 +374,12 @@ function openProjectModal(projectIndex = -1) {
         document.getElementById('editProjectTechStack').value = '';
         document.getElementById('editProjectFeatures').value = '';
         document.getElementById('editProjectLink').value = '';
+        
+        // 미디어 프리뷰 초기화
+        const mediaPreview = document.getElementById('mediaPreview');
+        if (mediaPreview) {
+            mediaPreview.innerHTML = '';
+        }
     }
     
     elements.projectModal.classList.remove('hidden');
@@ -297,7 +404,8 @@ function handleProjectSubmit(e) {
         features: document.getElementById('editProjectFeatures') ? 
             document.getElementById('editProjectFeatures').value.split('\n').map(s => s.trim()).filter(s => s) : [],
         link: document.getElementById('editProjectLink') ? 
-            document.getElementById('editProjectLink').value : ''
+            document.getElementById('editProjectLink').value : '',
+        media: [...currentProjectMedia]
     };
     
     if (editingProjectIndex >= 0) {
@@ -458,6 +566,102 @@ function renderSkills() {
             </button>
         </div>
     `).join('');
+}
+
+// 파일 업로드 설정
+function setupFileUpload() {
+    const mediaUploadArea = document.getElementById('mediaUploadArea');
+    const projectMedia = document.getElementById('projectMedia');
+    const mediaPreview = document.getElementById('mediaPreview');
+    
+    if (mediaUploadArea && projectMedia) {
+        // 클릭으로 파일 선택
+        mediaUploadArea.addEventListener('click', () => {
+            projectMedia.click();
+        });
+        
+        // 드래그 앤 드롭
+        mediaUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+        });
+        
+        mediaUploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+        });
+        
+        mediaUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+            const files = Array.from(e.dataTransfer.files);
+            handleFileUpload(files);
+        });
+        
+        // 파일 선택 시
+        projectMedia.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFileUpload(files);
+        });
+    }
+}
+
+// 파일 업로드 처리
+function handleFileUpload(files) {
+    const mediaPreview = document.getElementById('mediaPreview');
+    const validFiles = files.filter(file => {
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+        return validTypes.includes(file.type);
+    });
+    
+    validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const mediaData = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: e.target.result
+            };
+            
+            currentProjectMedia.push(mediaData);
+            renderMediaPreview();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// 미디어 프리뷰 렌더링
+function renderMediaPreview() {
+    const mediaPreview = document.getElementById('mediaPreview');
+    if (!mediaPreview) return;
+    
+    mediaPreview.innerHTML = currentProjectMedia.map((media, index) => {
+        const isVideo = media.type.startsWith('video/');
+        const isImage = media.type.startsWith('image/');
+        const mediaSrc = media.url || media.data; // 백엔드 URL 또는 로컬 데이터
+        
+        return `
+            <div class="relative group">
+                <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    ${isImage ? 
+                        `<img src="${mediaSrc}" alt="${media.name}" class="w-full h-full object-cover">` :
+                        `<video src="${mediaSrc}" class="w-full h-full object-cover" controls></video>`
+                    }
+                </div>
+                <button onclick="removeMedia(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    ×
+                </button>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate">${media.name}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+// 미디어 제거
+function removeMedia(index) {
+    currentProjectMedia.splice(index, 1);
+    renderMediaPreview();
 }
 
 // 프로젝트 상세 페이지로 이동

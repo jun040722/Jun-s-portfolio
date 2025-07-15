@@ -1,6 +1,7 @@
 // 전역 변수
 let currentProject = null;
 let projects = [];
+let currentProjectMedia = [];
 
 // DOM 요소들
 const elements = {
@@ -45,6 +46,9 @@ function setupEventListeners() {
     
     // 프로젝트 삭제
     elements.deleteProjectBtn.addEventListener('click', deleteProject);
+    
+    // 파일 업로드 관련
+    setupFileUpload();
     
     // 모달 외부 클릭으로 닫기
     elements.projectModal.addEventListener('click', (e) => {
@@ -112,6 +116,9 @@ function renderProjectDetail() {
     // 주요 기능
     renderFeatures();
     
+    // 미디어 갤러리
+    renderMediaGallery();
+    
     // 프로젝트 링크
     renderLinks();
 }
@@ -147,6 +154,83 @@ function renderFeatures() {
     ).join('');
 }
 
+// 미디어 갤러리 렌더링
+function renderMediaGallery() {
+    const mediaGallery = document.getElementById('projectMediaGallery');
+    const noMediaMessage = document.getElementById('noMediaMessage');
+    
+    if (!mediaGallery || !noMediaMessage) return;
+    
+    const media = currentProject.media || [];
+    
+    if (media.length === 0) {
+        mediaGallery.style.display = 'none';
+        noMediaMessage.style.display = 'block';
+        return;
+    }
+    
+    mediaGallery.style.display = 'grid';
+    noMediaMessage.style.display = 'none';
+    
+    mediaGallery.innerHTML = media.map((item, index) => {
+        const isVideo = item.type.startsWith('video/');
+        const isImage = item.type.startsWith('image/');
+        
+        return `
+            <div class="group cursor-pointer" onclick="openMediaModal(${index})">
+                <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    ${isImage ? 
+                        `<img src="${item.data}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">` :
+                        `<video src="${item.data}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" muted></video>`
+                    }
+                    ${isVideo ? `
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-black bg-opacity-50 rounded-full p-3">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 truncate">${item.name}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+// 미디어 모달 열기
+function openMediaModal(index) {
+    const media = currentProject.media[index];
+    if (!media) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+    modal.onclick = () => modal.remove();
+    
+    const isVideo = media.type.startsWith('video/');
+    const isImage = media.type.startsWith('image/');
+    
+    const content = document.createElement('div');
+    content.className = 'max-w-4xl max-h-full p-4';
+    content.onclick = (e) => e.stopPropagation();
+    
+    if (isImage) {
+        content.innerHTML = `
+            <img src="${media.data}" alt="${media.name}" class="max-w-full max-h-full object-contain">
+        `;
+    } else if (isVideo) {
+        content.innerHTML = `
+            <video src="${media.data}" controls class="max-w-full max-h-full">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    }
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+}
+
 // 프로젝트 링크 렌더링
 function renderLinks() {
     const link = currentProject.link;
@@ -170,6 +254,9 @@ function renderLinks() {
 function openProjectModal() {
     if (!currentProject) return;
     
+    // 미디어 데이터 초기화
+    currentProjectMedia = [];
+    
     document.getElementById('editProjectName').value = currentProject.name;
     document.getElementById('editProjectPeriod').value = currentProject.period;
     document.getElementById('editProjectType').value = currentProject.type;
@@ -178,6 +265,12 @@ function openProjectModal() {
     document.getElementById('editProjectTechStack').value = (currentProject.techStack || []).join(', ');
     document.getElementById('editProjectFeatures').value = (currentProject.features || []).join('\n');
     document.getElementById('editProjectLink').value = currentProject.link || '';
+    
+    // 기존 미디어 데이터 로드
+    if (currentProject.media) {
+        currentProjectMedia = [...currentProject.media];
+        renderMediaPreview();
+    }
     
     elements.projectModal.classList.remove('hidden');
 }
@@ -201,7 +294,8 @@ function handleProjectSubmit(e) {
         description: document.getElementById('editProjectDescription').value,
         techStack: document.getElementById('editProjectTechStack').value.split(',').map(s => s.trim()).filter(s => s),
         features: document.getElementById('editProjectFeatures').value.split('\n').map(s => s.trim()).filter(s => s),
-        link: document.getElementById('editProjectLink').value
+        link: document.getElementById('editProjectLink').value,
+        media: [...currentProjectMedia]
     };
     
     // 프로젝트 업데이트
@@ -284,6 +378,99 @@ function showNotification(message, type) {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+
+// 파일 업로드 설정
+function setupFileUpload() {
+    const mediaUploadArea = document.getElementById('mediaUploadAreaDetail');
+    const projectMedia = document.getElementById('projectMediaDetail');
+    
+    if (mediaUploadArea && projectMedia) {
+        // 클릭으로 파일 선택
+        mediaUploadArea.addEventListener('click', () => {
+            projectMedia.click();
+        });
+        
+        // 드래그 앤 드롭
+        mediaUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+        });
+        
+        mediaUploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+        });
+        
+        mediaUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            mediaUploadArea.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900');
+            const files = Array.from(e.dataTransfer.files);
+            handleFileUpload(files);
+        });
+        
+        // 파일 선택 시
+        projectMedia.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFileUpload(files);
+        });
+    }
+}
+
+// 파일 업로드 처리
+function handleFileUpload(files) {
+    const validFiles = files.filter(file => {
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+        return validTypes.includes(file.type);
+    });
+    
+    validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const mediaData = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: e.target.result
+            };
+            
+            currentProjectMedia.push(mediaData);
+            renderMediaPreview();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// 미디어 프리뷰 렌더링
+function renderMediaPreview() {
+    const mediaPreview = document.getElementById('mediaPreviewDetail');
+    if (!mediaPreview) return;
+    
+    mediaPreview.innerHTML = currentProjectMedia.map((media, index) => {
+        const isVideo = media.type.startsWith('video/');
+        const isImage = media.type.startsWith('image/');
+        
+        return `
+            <div class="relative group">
+                <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    ${isImage ? 
+                        `<img src="${media.data}" alt="${media.name}" class="w-full h-full object-cover">` :
+                        `<video src="${media.data}" class="w-full h-full object-cover" controls></video>`
+                    }
+                </div>
+                <button onclick="removeMedia(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    ×
+                </button>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate">${media.name}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+// 미디어 제거
+function removeMedia(index) {
+    currentProjectMedia.splice(index, 1);
+    renderMediaPreview();
 }
 
 // 페이지 로드 시 초기화
