@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 상세 - 포트폴리오</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- 네비게이션 -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="text-xl font-bold text-gray-900 dark:text-white hover:text-primary-500 transition-colors">
+                        ← 포트폴리오
+                    </a>
+                </div>
+                <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 프로젝트 상세 내용 -->
+        <div id="projectDetail" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <!-- 프로젝트 이미지 -->
+            <div class="relative h-64 md:h-96 bg-gray-200 dark:bg-gray-700">
+                <div id="projectImage" class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 프로젝트 정보 -->
+            <div class="p-6 md:p-8">
+                <!-- 헤더 -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h1 id="projectTitle" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">프로젝트 제목</h1>
+                        <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span id="projectPeriod">기간</span>
+                            <span id="projectType" class="px-2 py-1 text-xs font-medium rounded-full">유형</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="editProjectBtn" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            편집
+                        </button>
+                        <button id="deleteProjectBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            삭제
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 프로젝트 설명 -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">프로젝트 개요</h2>
+                    <p id="projectDescription" class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        프로젝트 설명이 여기에 표시됩니다.
+                    </p>
+                </div>
+
+                <!-- 추가 정보 섹션 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 기술 스택 -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">사용 기술</h3>
+                        <div id="projectTechStack" class="flex flex-wrap gap-2">
+                            <!-- 기술 스택 태그들이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 주요 기능 -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">주요 기능</h3>
+                        <ul id="projectFeatures" class="space-y-2 text-gray-700 dark:text-gray-300">
+                            <!-- 주요 기능들이 여기에 동적으로 추가됩니다 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 링크 섹션 -->
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">프로젝트 링크</h3>
+                    <div id="projectLinks" class="flex flex-wrap gap-4">
+                        <!-- 프로젝트 링크들이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 프로젝트 편집 모달 -->
+    <div id="projectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full p-6">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">프로젝트 편집</h3>
+                <form id="projectForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">프로젝트명</label>
+                        <input type="text" id="editProjectName" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">기간</label>
+                        <input type="text" id="editProjectPeriod" placeholder="예: 2023.01 - 2023.06" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">유형</label>
+                        <select id="editProjectType" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <option value="web">웹 개발</option>
+                            <option value="mobile">모바일 앱</option>
+                            <option value="ai">AI/ML</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">썸네일 URL</label>
+                        <input type="url" id="editProjectThumbnail" placeholder="https://example.com/image.jpg" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">설명</label>
+                        <textarea id="editProjectDescription" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">기술 스택 (쉼표로 구분)</label>
+                        <input type="text" id="editProjectTechStack" placeholder="예: React, Node.js, MongoDB" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">주요 기능 (줄바꿈으로 구분)</label>
+                        <textarea id="editProjectFeatures" rows="3" placeholder="예: 사용자 인증&#10;데이터 관리&#10;실시간 채팅" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">프로젝트 링크</label>
+                        <input type="url" id="editProjectLink" placeholder="https://github.com/username/project" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">저장</button>
+                        <button type="button" id="closeProjectModal" class="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">취소</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="project-detail.js"></script>
+</body>
+</html> 

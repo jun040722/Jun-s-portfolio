@@ -11,7 +11,17 @@ const initialProjects = [
         period: "2024.01 - 2024.02",
         type: "web",
         thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
-        description: "React와 Tailwind CSS를 사용한 반응형 포트폴리오 웹사이트입니다. 다크모드 지원과 모바일 최적화가 포함되어 있습니다."
+        description: "React와 Tailwind CSS를 사용한 반응형 포트폴리오 웹사이트입니다. 다크모드 지원과 모바일 최적화가 포함되어 있습니다.",
+        techStack: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS", "GitHub Pages"],
+        features: [
+            "반응형 디자인 (모바일, 태블릿, 데스크톱)",
+            "다크모드/라이트모드 전환",
+            "실시간 프로필 편집",
+            "프로젝트 추가/편집/삭제",
+            "스킬 태그 관리",
+            "프로젝트 정렬 및 필터링"
+        ],
+        link: "https://github.com/jun040722/Jun-s-portfolio"
     },
     {
         id: 2,
@@ -19,7 +29,16 @@ const initialProjects = [
         period: "2023.11 - 2023.12",
         type: "ai",
         thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
-        description: "OpenAI API를 활용한 지능형 챗봇 애플리케이션입니다. 자연어 처리와 대화형 인터페이스를 구현했습니다."
+        description: "OpenAI API를 활용한 지능형 챗봇 애플리케이션입니다. 자연어 처리와 대화형 인터페이스를 구현했습니다.",
+        techStack: ["Python", "OpenAI API", "React", "Node.js", "MongoDB"],
+        features: [
+            "자연어 처리 및 대화형 인터페이스",
+            "실시간 메시지 전송",
+            "대화 히스토리 저장",
+            "다국어 지원",
+            "사용자 인증 및 권한 관리"
+        ],
+        link: "https://github.com/example/ai-chatbot"
     },
     {
         id: 3,
@@ -27,7 +46,17 @@ const initialProjects = [
         period: "2023.08 - 2023.10",
         type: "mobile",
         thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop",
-        description: "React Native로 개발한 크로스 플랫폼 할일 관리 애플리케이션입니다. 로컬 스토리지와 푸시 알림 기능을 포함합니다."
+        description: "React Native로 개발한 크로스 플랫폼 할일 관리 애플리케이션입니다. 로컬 스토리지와 푸시 알림 기능을 포함합니다.",
+        techStack: ["React Native", "JavaScript", "AsyncStorage", "Push Notifications", "Expo"],
+        features: [
+            "할일 추가/편집/삭제",
+            "카테고리별 분류",
+            "우선순위 설정",
+            "푸시 알림",
+            "오프라인 동기화",
+            "다크모드 지원"
+        ],
+        link: "https://github.com/example/todo-app"
     }
 ];
 
@@ -228,8 +257,11 @@ function openProjectModal(projectIndex = -1) {
         document.getElementById('editProjectName').value = project.name;
         document.getElementById('editProjectPeriod').value = project.period;
         document.getElementById('editProjectType').value = project.type;
-        document.getElementById('editProjectThumbnail').value = project.thumbnail;
+        document.getElementById('editProjectThumbnail').value = project.thumbnail || '';
         document.getElementById('editProjectDescription').value = project.description;
+        document.getElementById('editProjectTechStack').value = (project.techStack || []).join(', ');
+        document.getElementById('editProjectFeatures').value = (project.features || []).join('\n');
+        document.getElementById('editProjectLink').value = project.link || '';
     } else {
         modalTitle.textContent = '프로젝트 추가';
         
@@ -238,6 +270,9 @@ function openProjectModal(projectIndex = -1) {
         document.getElementById('editProjectType').value = 'web';
         document.getElementById('editProjectThumbnail').value = '';
         document.getElementById('editProjectDescription').value = '';
+        document.getElementById('editProjectTechStack').value = '';
+        document.getElementById('editProjectFeatures').value = '';
+        document.getElementById('editProjectLink').value = '';
     }
     
     elements.projectModal.classList.remove('hidden');
@@ -256,7 +291,13 @@ function handleProjectSubmit(e) {
         period: document.getElementById('editProjectPeriod').value,
         type: document.getElementById('editProjectType').value,
         thumbnail: document.getElementById('editProjectThumbnail').value,
-        description: document.getElementById('editProjectDescription').value
+        description: document.getElementById('editProjectDescription').value,
+        techStack: document.getElementById('editProjectTechStack') ? 
+            document.getElementById('editProjectTechStack').value.split(',').map(s => s.trim()).filter(s => s) : [],
+        features: document.getElementById('editProjectFeatures') ? 
+            document.getElementById('editProjectFeatures').value.split('\n').map(s => s.trim()).filter(s => s) : [],
+        link: document.getElementById('editProjectLink') ? 
+            document.getElementById('editProjectLink').value : ''
     };
     
     if (editingProjectIndex >= 0) {
@@ -312,7 +353,7 @@ function renderProjects() {
     }
     
     elements.projectsGrid.innerHTML = filteredProjects.map((project, index) => `
-        <div class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300" onclick="openProjectDetail(${project.id})">
             <div class="relative h-48 bg-gray-200 dark:bg-gray-700">
                 ${project.thumbnail ? 
                     `<img src="${project.thumbnail}" alt="${project.name}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500\\'><svg class=\\'w-16 h-16\\' fill=\\'none\\' stroke=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\\'></path></svg></div>'">` :
@@ -322,7 +363,7 @@ function renderProjects() {
                         </svg>
                     </div>`
                 }
-                <div class="absolute top-2 right-2 flex gap-1">
+                <div class="absolute top-2 right-2 flex gap-1" onclick="event.stopPropagation()">
                     <button onclick="openProjectModal(${filteredProjects.findIndex(p => p.id === project.id)})" class="p-1 bg-white dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -333,6 +374,12 @@ function renderProjects() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
                     </button>
+                </div>
+                <!-- 상세보기 버튼 -->
+                <div class="absolute bottom-2 right-2">
+                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded-full">
+                        상세보기 →
+                    </span>
                 </div>
             </div>
             <div class="p-6">
@@ -412,6 +459,11 @@ function renderSkills() {
             </button>
         </div>
     `).join('');
+}
+
+// 프로젝트 상세 페이지로 이동
+function openProjectDetail(projectId) {
+    window.location.href = `project-detail.html?id=${projectId}`;
 }
 
 // 페이지 로드 시 초기화

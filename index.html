@@ -211,6 +211,18 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">설명</label>
                         <textarea id="editProjectDescription" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">기술 스택 (쉼표로 구분)</label>
+                        <input type="text" id="editProjectTechStack" placeholder="예: React, Node.js, MongoDB" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">주요 기능 (줄바꿈으로 구분)</label>
+                        <textarea id="editProjectFeatures" rows="3" placeholder="예: 사용자 인증&#10;데이터 관리&#10;실시간 채팅" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">프로젝트 링크</label>
+                        <input type="url" id="editProjectLink" placeholder="https://github.com/username/project" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    </div>
                     <div class="flex gap-3 pt-4">
                         <button type="submit" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">저장</button>
                         <button type="button" id="closeProjectModal" class="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">취소</button>
