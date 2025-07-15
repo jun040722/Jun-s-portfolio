@@ -383,12 +383,11 @@ function renderProjects() {
                 </div>
             </div>
             <div class="p-6">
-                <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">${project.name}</h3>
                     <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeBadgeClass(project.type)}">${getTypeLabel(project.type)}</span>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">${project.period}</p>
-                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed" style="white-space: pre-line;">${project.description}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">${project.period}</p>
             </div>
         </div>
     `).join('');
