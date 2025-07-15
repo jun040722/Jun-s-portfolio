@@ -646,7 +646,7 @@ function renderMediaPreview() {
                 <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                     ${isImage ? 
                         `<img src="${mediaSrc}" alt="${media.name}" class="w-full h-full object-cover">` :
-                        `<video src="${mediaSrc}" class="w-full h-full object-cover" controls></video>`
+                        `<video src="${mediaSrc}" class="w-full h-full object-cover" controls preload="metadata"></video>`
                     }
                 </div>
                 <button onclick="removeMedia(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
