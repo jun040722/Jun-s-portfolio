@@ -46,7 +46,7 @@ const upload = multer({
 
 // 라우트
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // 파일 업로드 API
