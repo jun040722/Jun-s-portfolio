@@ -388,7 +388,7 @@ function renderProjects() {
                     <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeBadgeClass(project.type)}">${getTypeLabel(project.type)}</span>
                 </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">${project.period}</p>
-                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">${project.description}</p>
+                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed" style="white-space: pre-line;">${project.description}</p>
             </div>
         </div>
     `).join('');

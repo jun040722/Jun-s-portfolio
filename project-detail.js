@@ -99,7 +99,7 @@ function renderProjectDetail() {
     elements.projectPeriod.textContent = currentProject.period;
     elements.projectType.textContent = getTypeLabel(currentProject.type);
     elements.projectType.className = `px-2 py-1 text-xs font-medium rounded-full ${getTypeBadgeClass(currentProject.type)}`;
-    elements.projectDescription.textContent = currentProject.description;
+    elements.projectDescription.textContent = currentProject.description || '프로젝트 설명이 없습니다.';
     
     // 이미지
     if (currentProject.thumbnail) {

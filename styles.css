@@ -210,4 +210,28 @@ textarea:focus {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* 프로젝트 설명 줄바꿈 처리 */
+.project-description {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+/* 프로젝트 기능 리스트 스타일 */
+.project-features li {
+    margin-bottom: 0.5rem;
+}
+
+/* 프로젝트 링크 스타일 */
+.project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.project-link:hover {
+    transform: translateY(-1px);
 } 
