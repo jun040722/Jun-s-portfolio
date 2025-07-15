@@ -5,15 +5,14 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// 업로드 폴더 생성
-const uploadDir = path.join(__dirname, 'uploads');
+// 업로드 폴더 생성 (Vercel에서는 /tmp 디렉토리 사용)
+const uploadDir = process.env.NODE_ENV === 'production' ? '/tmp/uploads' : path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -80,7 +79,10 @@ app.use('/uploads', express.static(uploadDir));
 // 프로젝트 데이터 API
 app.get('/api/projects', (req, res) => {
     try {
-        const dataPath = path.join(__dirname, 'data', 'projects.json');
+        const dataPath = process.env.NODE_ENV === 'production' 
+            ? '/tmp/data/projects.json' 
+            : path.join(__dirname, 'data', 'projects.json');
+        
         if (fs.existsSync(dataPath)) {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
@@ -95,7 +97,7 @@ app.get('/api/projects', (req, res) => {
 
 app.post('/api/projects', (req, res) => {
     try {
-        const dataDir = path.join(__dirname, 'data');
+        const dataDir = process.env.NODE_ENV === 'production' ? '/tmp/data' : path.join(__dirname, 'data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
         }
@@ -114,7 +116,10 @@ app.post('/api/projects', (req, res) => {
 // 스킬 데이터 API
 app.get('/api/skills', (req, res) => {
     try {
-        const dataPath = path.join(__dirname, 'data', 'skills.json');
+        const dataPath = process.env.NODE_ENV === 'production' 
+            ? '/tmp/data/skills.json' 
+            : path.join(__dirname, 'data', 'skills.json');
+        
         if (fs.existsSync(dataPath)) {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
@@ -129,7 +134,7 @@ app.get('/api/skills', (req, res) => {
 
 app.post('/api/skills', (req, res) => {
     try {
-        const dataDir = path.join(__dirname, 'data');
+        const dataDir = process.env.NODE_ENV === 'production' ? '/tmp/data' : path.join(__dirname, 'data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
         }
@@ -148,7 +153,10 @@ app.post('/api/skills', (req, res) => {
 // 프로필 데이터 API
 app.get('/api/profile', (req, res) => {
     try {
-        const dataPath = path.join(__dirname, 'data', 'profile.json');
+        const dataPath = process.env.NODE_ENV === 'production' 
+            ? '/tmp/data/profile.json' 
+            : path.join(__dirname, 'data', 'profile.json');
+        
         if (fs.existsSync(dataPath)) {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
@@ -163,7 +171,7 @@ app.get('/api/profile', (req, res) => {
 
 app.post('/api/profile', (req, res) => {
     try {
-        const dataDir = path.join(__dirname, 'data');
+        const dataDir = process.env.NODE_ENV === 'production' ? '/tmp/data' : path.join(__dirname, 'data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
         }
@@ -185,6 +193,5 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
 });
 
-app.listen(PORT, () => {
-    console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
-}); 
+// Vercel 서버리스 환경을 위한 export
+module.exports = app; 
