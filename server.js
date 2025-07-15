@@ -91,7 +91,66 @@ app.get('/api/projects', (req, res) => {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
         } else {
-            res.json([]);
+            // 기본 프로젝트 데이터 제공
+            const defaultProjects = [
+                {
+                    id: 1,
+                    name: "포트폴리오 웹사이트",
+                    period: "2024.01 - 2024.02",
+                    type: "web",
+                    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
+                    description: "React와 Tailwind CSS를 사용한 반응형 포트폴리오 웹사이트입니다. 다크모드 지원과 모바일 최적화가 포함되어 있습니다.",
+                    techStack: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS", "GitHub Pages"],
+                    features: [
+                        "반응형 디자인 (모바일, 태블릿, 데스크톱)",
+                        "다크모드/라이트모드 전환",
+                        "실시간 프로필 편집",
+                        "프로젝트 추가/편집/삭제",
+                        "스킬 태그 관리",
+                        "프로젝트 정렬 및 필터링"
+                    ],
+                    link: "https://github.com/jun040722/Jun-s-portfolio",
+                    media: []
+                },
+                {
+                    id: 2,
+                    name: "AI 챗봇 애플리케이션",
+                    period: "2023.11 - 2023.12",
+                    type: "ai",
+                    thumbnail: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
+                    description: "OpenAI API를 활용한 지능형 챗봇 애플리케이션입니다. 자연어 처리와 대화형 인터페이스를 구현했습니다.",
+                    techStack: ["Python", "OpenAI API", "React", "Node.js", "MongoDB"],
+                    features: [
+                        "자연어 처리 및 대화형 인터페이스",
+                        "실시간 메시지 전송",
+                        "대화 히스토리 저장",
+                        "다국어 지원",
+                        "사용자 인증 및 권한 관리"
+                    ],
+                    link: "https://github.com/example/ai-chatbot",
+                    media: []
+                },
+                {
+                    id: 3,
+                    name: "모바일 할일 관리 앱",
+                    period: "2023.08 - 2023.10",
+                    type: "mobile",
+                    thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop",
+                    description: "React Native로 개발한 크로스 플랫폼 할일 관리 애플리케이션입니다. 로컬 스토리지와 푸시 알림 기능을 포함합니다.",
+                    techStack: ["React Native", "JavaScript", "AsyncStorage", "Push Notifications", "Expo"],
+                    features: [
+                        "할일 추가/편집/삭제",
+                        "카테고리별 분류",
+                        "우선순위 설정",
+                        "푸시 알림",
+                        "오프라인 동기화",
+                        "다크모드 지원"
+                    ],
+                    link: "https://github.com/example/todo-app",
+                    media: []
+                }
+            ];
+            res.json(defaultProjects);
         }
     } catch (error) {
         console.error('프로젝트 데이터 로드 오류:', error);
@@ -128,7 +187,20 @@ app.get('/api/skills', (req, res) => {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
         } else {
-            res.json([]);
+            // 기본 스킬 데이터 제공
+            const defaultSkills = [
+                { name: "JavaScript", color: "blue" },
+                { name: "React", color: "blue" },
+                { name: "Node.js", color: "green" },
+                { name: "Python", color: "green" },
+                { name: "TypeScript", color: "blue" },
+                { name: "MongoDB", color: "green" },
+                { name: "AWS", color: "yellow" },
+                { name: "Docker", color: "blue" },
+                { name: "Git", color: "purple" },
+                { name: "Figma", color: "pink" }
+            ];
+            res.json(defaultSkills);
         }
     } catch (error) {
         console.error('스킬 데이터 로드 오류:', error);
@@ -165,7 +237,17 @@ app.get('/api/profile', (req, res) => {
             const data = fs.readFileSync(dataPath, 'utf8');
             res.json(JSON.parse(data));
         } else {
-            res.json({});
+            // 기본 프로필 데이터 제공
+            const defaultProfile = {
+                name: "Jun",
+                school: "서울대학교",
+                major: "컴퓨터공학과",
+                age: "25",
+                phone: "+82-10-1234-5678",
+                email: "jun@example.com",
+                github: "https://github.com/jun040722"
+            };
+            res.json(defaultProfile);
         }
     } catch (error) {
         console.error('프로필 데이터 로드 오류:', error);
